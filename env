@@ -1,4 +1,4 @@
-#1.配置Linux环境，这里以运行在VMware虚拟机中的Ubuntu2040为例
+#1.配置Linux环境，这里以运行在VMware虚拟机中的Ubuntu2404为例
 
 #2.克隆仓库
   在本地创建一个项目目录，然后使用git指令克隆仓库git clone https://github.com/SixEngineer/Monorepo.git
