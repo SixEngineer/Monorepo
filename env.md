@@ -16,4 +16,17 @@
   go version
 
 #5.安装openlist实例并允许，挂载本地目录和一个网盘以便于测试
-  
+
+#6。安装go检查器
+  ctrl+shift+x打开拓展界面，安装go插件（安装Chinese插件（可选））
+
+#7.SSH到cursor进行开发
+  在主机运行cursor，connect via SSH
+  安装remote ssh插件
+  输入>（运行命令）
+  输入ssh，选择Remote-ssh connect to host
+  然后输入用户名@远程IP
+  等待片刻输入密码登录
+  在终端cd到本地仓库目录，然后输入code .
+  再次输入密码，可以看到已经进入仓库
+
