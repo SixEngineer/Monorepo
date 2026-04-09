@@ -16,12 +16,7 @@ func NewTokenUseCase(tokenRepo *repository.TokenRepository) *TokenUseCase {
 	}
 }
 
-// 上传访问令牌
-func (t *TokenUseCase) UploadBaiduAccessToken(accessToken entity.AccessToken) error {
-	return t.TokenRepo.InsertBaiduAccessToken(accessToken)
-}
-
-// 上传刷新令牌
-func (t *TokenUseCase) UploadBaiduRefreshToken(refreshToken entity.RefreshToken) error {
-	return t.TokenRepo.InsertBaiduRefreshToken(refreshToken)
+// 上传访问令牌和刷新令牌
+func (t *TokenUseCase) UploadToken(token entity.Token) error {
+	return t.TokenRepo.InsertToken(token)
 }

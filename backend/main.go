@@ -1,6 +1,8 @@
 package main
 
 import (
+	"openbridge/backend/internal/config"
+	"openbridge/backend/internal/domain/entity"
 	"openbridge/backend/internal/handler"
 	"openbridge/backend/internal/repository"
 	"openbridge/backend/internal/usecase"
@@ -12,10 +14,19 @@ import (
 
 func main() {
 
+	// 读取配置
+	allConfig := config.ReadConfig()
+
 	// 数据库连接
-	db, err := gorm.Open(sqlite.Open("openbridge.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(allConfig.DB.Path), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
+	}
+
+	// 自动迁移
+	err = db.AutoMigrate(&entity.Token{})
+	if err != nil {
+		panic("failed to migrate database")
 	}
 
 	tokenRepo := repository.NewTokenRepository(db)
@@ -26,15 +37,8 @@ func main() {
 
 	tokenGroup := r.Group("/api/v1/token")
 	{
-		tokenGroup.POST("/access", baiduHandler.UploadAccessToken)
-		tokenGroup.POST("/refresh", baiduHandler.UploadRefreshToken)
+		tokenGroup.POST("", baiduHandler.UploadToken)
 	}
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
-	r.Run(":8080")
+	r.Run(":" + allConfig.App.Port)
 }

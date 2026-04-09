@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"openbridge/backend/internal/domain/entity"
+	"openbridge/backend/internal/pkg/myerror"
 	"openbridge/backend/internal/tool"
 	"openbridge/backend/internal/usecase"
 
@@ -21,41 +22,22 @@ func NewTokenHandler(tokenUsecase *usecase.TokenUseCase) *TokenHandler {
 	}
 }
 
-// 上传访问令牌
-func (b *TokenHandler) UploadAccessToken(c *gin.Context) {
-	
-	// 绑定请求体
-	var accessTokenReq entity.AccessToken
-	if err := c.ShouldBindJSON(&accessTokenReq); err != nil {
-		c.JSON(http.StatusBadRequest, tool.HttpResult{Code: 1001, Message: err.Error()})
+// 上传访问令牌和刷新令牌
+func (h *TokenHandler) UploadToken(c *gin.Context) {
+
+	// 绑定JSON数据到Token结构体
+	var token entity.Token
+	if err := c.ShouldBindJSON(&token); err != nil {
+		c.JSON(http.StatusBadRequest, tool.HttpResult{Code: myerror.ErrorCodeJsonFormatInvalid, Message: err.Error()})
 		return
 	}
 
-	// 保存令牌
-	if err := b.tokenUsecase.UploadBaiduAccessToken(accessTokenReq); err != nil {
-		c.JSON(http.StatusInternalServerError, tool.HttpResult{Code: 1001, Message: err.Error()})
+	// 调用UseCase层上传令牌
+	if err := h.tokenUsecase.UploadToken(token); err != nil {
+		c.JSON(http.StatusInternalServerError, tool.HttpResult{Code: myerror.ErrorCodeTokenUploadFailed, Message: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, tool.HttpResult{Code: 0, Message: "ok"})
+	c.JSON(http.StatusOK, tool.HttpResult{}.Success(nil))
 
-}
-
-// 上传刷新令牌
-func (b *TokenHandler) UploadRefreshToken(c *gin.Context) {
-    
-	// 绑定请求体
-	var refreshTokenReq entity.RefreshToken
-	if err := c.ShouldBindJSON(&refreshTokenReq); err != nil {
-		c.JSON(http.StatusBadRequest, tool.HttpResult{Code: 1001, Message: err.Error()})
-		return
-	}
-
-	// 保存令牌
-	if err := b.tokenUsecase.UploadBaiduRefreshToken(refreshTokenReq); err != nil {
-	    c.JSON(http.StatusInternalServerError, tool.HttpResult{Code: 1001, Message: err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, tool.HttpResult{Code: 0, Message: "ok"})
 }
