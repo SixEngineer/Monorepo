@@ -1,5 +1,7 @@
 package tool
 
+import "openbridge/backend/internal/pkg/myerror"
+
 type HttpResult struct {
 	Code    int         `json:"code"` // 状态码
 	Message interface{} `json:"msg"`  // 消息
@@ -8,8 +10,8 @@ type HttpResult struct {
 
 func (h HttpResult) Success(data interface{}) HttpResult {
 	return HttpResult{
-		Code:    1,
-		Message: nil,
+		Code:    myerror.ErrorCodeOK,
+		Message: myerror.SuccessMessage,
 		Data:    data,
 	}
 }
