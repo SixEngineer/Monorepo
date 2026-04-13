@@ -7,6 +7,7 @@ import (
 	"openbridge/backend/internal/middleware"
 	"openbridge/backend/internal/pkg/logger"
 	"openbridge/backend/internal/repository"
+	"openbridge/backend/internal/tool"
 	"openbridge/backend/internal/usecase"
 
 	"github.com/gin-gonic/gin"
@@ -44,7 +45,12 @@ func main() {
 
 	tokenRepo := repository.NewTokenRepository(db)
 	tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
-	baiduHandler := handler.NewTokenHandler(tokenUsecase)
+	tokenHandler := handler.NewTokenHandler(tokenUsecase)
+
+	providerRepo := repository.NewProviderRepository(db)
+	providerRegistry := &tool.Registry{}
+	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry)
+	providerHandler := handler.NewProviderHandler(providerUsecase)
 
 	r := gin.New()
 	r.Use(middleware.RequestID())
@@ -53,7 +59,17 @@ func main() {
 
 	tokenGroup := r.Group("/api/v1/token")
 	{
-		tokenGroup.POST("", baiduHandler.UploadToken)
+		tokenGroup.POST("", tokenHandler.UploadToken)
+	}
+
+	// 注册 Provider 相关路由
+	providerGroup := r.Group("/api/v1/provider")
+	{
+		providerGroup.POST("", providerHandler.RegisterProvider)
+		providerGroup.DELETE("/:id", providerHandler.DeleteProvider)
+		providerGroup.PUT("/", providerHandler.UpdateProvider)
+		providerGroup.GET("/:id", providerHandler.GetProvider)
+		providerGroup.GET("/list", providerHandler.ListProvider)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {

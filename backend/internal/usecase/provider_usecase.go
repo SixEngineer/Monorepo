@@ -1,0 +1,86 @@
+package usecase
+
+import (
+	"errors"
+	"openbridge/backend/internal/domain/entity"
+	"openbridge/backend/internal/domain/providers"
+	"openbridge/backend/internal/repository"
+	"openbridge/backend/internal/tool"
+)
+
+type ProviderUseCase struct {
+	ProviderRepo *repository.ProviderRepository
+	ProviderRegistry *tool.Registry
+}
+
+// 构造函数
+func NewProviderUseCase(providerRepo *repository.ProviderRepository, providerRegistry *tool.Registry) *ProviderUseCase {
+	return &ProviderUseCase{
+		ProviderRepo: providerRepo,
+		ProviderRegistry: providerRegistry,
+	}
+}
+
+// 注册 Provider
+func (p *ProviderUseCase) RegisterProvider(providerAccount entity.ProviderAccount) error {
+    
+	providerNetDisk  := providerAccount.NetDisk
+
+	switch providerNetDisk {
+		case "mock":
+			p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
+		default:
+			return errors.New("provider not found")
+	}
+	
+	return p.ProviderRepo.InsertProviderAccount(&providerAccount)	
+}
+
+// 删除 Provider
+func (p *ProviderUseCase) DeleteProvider(id uint) error {
+    
+	// 首先获取ProviderAccount信息，以便从Registry中注销
+	providerAccount, err := p.ProviderRepo.GetProviderAccount(id)
+	if err != nil {
+		return err
+	}
+
+	// 从Registry中注销Provider
+	p.ProviderRegistry.Unregister(providerAccount.Name)
+	
+	return p.ProviderRepo.DeleteProviderAccount(id)
+}
+
+// 更新 Provider 信息
+func (p *ProviderUseCase) UpdateProvider(providerAccount entity.ProviderAccount) error {
+
+	providerAccountOld, err := p.ProviderRepo.GetProviderAccount(providerAccount.ID)
+	if err != nil {
+		return err
+	}
+
+	// 删除旧的Provider
+	p.ProviderRegistry.Unregister(providerAccountOld.Name)
+
+	// 注册新的Provider
+	providerNetDisk  := providerAccount.NetDisk
+
+	switch providerNetDisk {
+		case "mock":
+			p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
+		default:
+			return errors.New("provider not found")
+	}
+
+	return p.ProviderRepo.UpdateProviderAccount(&providerAccount)
+}
+
+// 获取 Provider
+func (p *ProviderUseCase) GetProvider(id uint) (*entity.ProviderAccount, error) {
+	return p.ProviderRepo.GetProviderAccount(id)
+}
+
+// 获取 Provider 列表
+func (p *ProviderUseCase) ListProvider() ([]entity.ProviderAccount, error) {
+	return p.ProviderRepo.ListProviderAccounts()
+}
