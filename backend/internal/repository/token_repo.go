@@ -2,7 +2,9 @@ package repository
 
 import (
 	"openbridge/backend/internal/domain/entity"
+	"openbridge/backend/internal/pkg/logger"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -17,5 +19,10 @@ func NewTokenRepository(db *gorm.DB) *TokenRepository {
 
 // 上传访问令牌和刷新令牌
 func (repo *TokenRepository) InsertToken(token entity.Token) error {
-    return repo.db.Create(&token).Error
+	err := repo.db.Create(&token).Error
+	if err != nil {
+		logger.L().Error("insert token failed", zap.Error(err), zap.String("net_disk", token.NetDisk))
+		return err
+	}
+	return nil
 }

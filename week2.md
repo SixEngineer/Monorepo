@@ -158,7 +158,10 @@ type LogConfig struct {
   "msg": "create access token",
   "request_id": "req_123456",
   "path": "/api/v1/token/access",
-  "net_disk": "baidu"
+  "method": "POST",
+  "status": 1000,
+  "latency": 0.123,
+  "user_id": "user_123456"
 }
 ```
 
