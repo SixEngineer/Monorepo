@@ -48,14 +48,22 @@ func main() {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
 	}
 
+	err = db.AutoMigrate(&entity.QuotaSnapshot{})
+	if err != nil {
+		logger.L().Fatal("db migrate failed", zap.Error(err))
+	}
+
 	tokenRepo := repository.NewTokenRepository(db)
 	tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
 	tokenHandler := handler.NewTokenHandler(tokenUsecase)
 
 	providerRepo := repository.NewProviderRepository(db)
+	quotaRepo := repository.NewQuotaRepository(db)
 	providerRegistry := tool.NewRegistry()
 	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry)
+	quotaUsecase := usecase.NewQuotaUseCase(providerRepo, quotaRepo, providerRegistry)
 	providerHandler := handler.NewProviderHandler(providerUsecase)
+	quotaHandler := handler.NewQuotaHandler(quotaUsecase)
 
 	r := gin.New()
 	r.Use(middleware.RequestID())
@@ -75,6 +83,12 @@ func main() {
 		providerGroup.PUT("/", providerHandler.UpdateProvider)
 		providerGroup.GET("/info", providerHandler.GetProvider)
 		providerGroup.GET("/list", providerHandler.ListProvider)
+	}
+
+	quotaGroup := r.Group("/api/v1/quota")
+	{
+		quotaGroup.POST("/query", quotaHandler.QueryQuota)
+		quotaGroup.POST("/sync", quotaHandler.SyncQuota)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {

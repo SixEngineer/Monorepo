@@ -2,6 +2,7 @@ package repository
 
 import (
 	"openbridge/backend/internal/domain/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ func (repo *ProviderRepository) DeleteProviderAccount(id uint) error {
 
 // 更新 ProviderAccount
 func (repo *ProviderRepository) UpdateProviderAccount(providerAccount *entity.ProviderAccount) error {
-    return repo.db.Updates(providerAccount).Error
+	return repo.db.Updates(providerAccount).Error
 }
 
 // 获取 ProviderAccount
@@ -48,4 +49,36 @@ func (repo *ProviderRepository) ListProviderAccounts() ([]entity.ProviderAccount
 		return nil, err
 	}
 	return providerAccounts, nil
+}
+
+// 按 provider 标识查询 ProviderAccount，优先按 name，兜底按 net_disk
+func (repo *ProviderRepository) GetProviderAccountByProvider(provider string) (*entity.ProviderAccount, error) {
+	var providerAccount entity.ProviderAccount
+	err := repo.db.Where("name = ?", provider).First(&providerAccount).Error
+	if err == nil {
+		return &providerAccount, nil
+	}
+	if err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	err = repo.db.Where("net_disk = ?", provider).First(&providerAccount).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &providerAccount, nil
+}
+
+// 更新 ProviderAccount 当前配额
+func (repo *ProviderRepository) UpdateProviderQuota(providerAccountID uint, total int64, used int64, available int64, syncedAt time.Time) error {
+	updates := map[string]interface{}{
+		"total_quota":        total,
+		"used_quota":         used,
+		"available_quota":    available,
+		"last_quota_sync_at": syncedAt,
+		"updated_at":         syncedAt,
+	}
+
+	return repo.db.Model(&entity.ProviderAccount{}).Where("id = ?", providerAccountID).Updates(updates).Error
 }

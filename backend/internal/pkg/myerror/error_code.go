@@ -23,4 +23,8 @@ const (
 
 	ErrorCodeProviderListFailed = 1008 // Provider 列表获取失败
 
+	ErrorCodeQuotaQueryFailed = 1009 // Quota 查询失败
+
+	ErrorCodeQuotaSyncFailed = 1010 // Quota 同步失败
+
 )
