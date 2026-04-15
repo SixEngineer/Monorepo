@@ -43,12 +43,17 @@ func main() {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
 	}
 
+	err = db.AutoMigrate(&entity.ProviderAccount{})
+	if err != nil {
+		logger.L().Fatal("db migrate failed", zap.Error(err))
+	}
+
 	tokenRepo := repository.NewTokenRepository(db)
 	tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
 	tokenHandler := handler.NewTokenHandler(tokenUsecase)
 
 	providerRepo := repository.NewProviderRepository(db)
-	providerRegistry := &tool.Registry{}
+	providerRegistry := tool.NewRegistry()
 	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry)
 	providerHandler := handler.NewProviderHandler(providerUsecase)
 
@@ -66,9 +71,9 @@ func main() {
 	providerGroup := r.Group("/api/v1/provider")
 	{
 		providerGroup.POST("", providerHandler.RegisterProvider)
-		providerGroup.DELETE("/:id", providerHandler.DeleteProvider)
+		providerGroup.DELETE("", providerHandler.DeleteProvider)
 		providerGroup.PUT("/", providerHandler.UpdateProvider)
-		providerGroup.GET("/:id", providerHandler.GetProvider)
+		providerGroup.GET("/info", providerHandler.GetProvider)
 		providerGroup.GET("/list", providerHandler.ListProvider)
 	}
 

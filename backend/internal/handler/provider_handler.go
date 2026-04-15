@@ -43,7 +43,7 @@ func (h *ProviderHandler) RegisterProvider(c *gin.Context) {
 // 删除 Provider
 func (h *ProviderHandler) DeleteProvider(c *gin.Context) {
 
-    idStr := c.Param("id")
+    idStr := c.Query("id")
 	// 这里需要将id转换为uint类型
     idUint, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -83,7 +83,7 @@ func (h *ProviderHandler) UpdateProvider(c *gin.Context) {
 // 获取 Provider
 func (h *ProviderHandler) GetProvider(c *gin.Context) {
 
-    idStr := c.Param("id")
+    idStr := c.Query("id")
 	// 这里需要将id转换为uint类型
     idUint, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {

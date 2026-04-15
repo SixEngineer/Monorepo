@@ -8,6 +8,12 @@ type Registry struct {
 	providers map[string]interfaces.Provider
 }
 
+func NewRegistry() *Registry {
+	return &Registry{
+		providers: make(map[string]interfaces.Provider),
+	}
+}
+
 func (r *Registry) Register(name string, p interfaces.Provider) error {
 	r.providers[name] = p
 	return nil
