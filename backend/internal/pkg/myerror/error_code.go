@@ -11,13 +11,20 @@ const (
 
 	ErrorCodeTokenUploadFailed = 1002 // 令牌上传失败
 
-	ErrorCodeAccessTokenExpired       = 1001 // access token 过期
-	ErrorCodeAccessTokenInvalid       = 1002 // access token 无效
-	ErrorCodeRefreshTokenExpired      = 1003 // refresh token 过期
-	ErrorCodeRefreshTokenInvalid      = 1004 // refresh token 无效
-	ErrorCodeAccessTokenUploadFailed  = 1005 // access token 上传失败
-	ErrorCodeRefreshTokenUploadFailed = 1006 // refresh token 上传失败
+	ErrorCodeProviderRegisterFailed = 1003 // Provider 注册失败
 
-	ErrorCodeUploadExceeded = 1007 // 上传文件大小超过容量剩余
+	ErrorCodeParameterInvalid = 1004 // 参数无效
+
+	ErrorCodeProviderDeleteFailed = 1005 // Provider 删除失败
+
+	ErrorCodeProviderUpdateFailed = 1006 // Provider 更新失败
+
+	ErrorCodeProviderGetFailed = 1007 // Provider 获取失败
+
+	ErrorCodeProviderListFailed = 1008 // Provider 列表获取失败
+
+	ErrorCodeQuotaQueryFailed = 1009 // Quota 查询失败
+
+	ErrorCodeQuotaSyncFailed = 1010 // Quota 同步失败
 
 )
