@@ -9,6 +9,8 @@ import (
 	"openbridge/backend/internal/repository"
 	"openbridge/backend/internal/tool"
 	"openbridge/backend/internal/usecase"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -31,6 +33,12 @@ func main() {
 		zap.String("port", allConfig.App.Port),
 	)
 
+	// TODO: 创建数据库所在目录
+	dbDir := filepath.Dir(allConfig.DB.Path)
+	if err := os.MkdirAll(dbDir, 0755); err != nil {
+		logger.L().Fatal("failed to create db directory", zap.Error(err), zap.String("dir", dbDir))
+	}
+	
 	// 数据库连接
 	db, err := gorm.Open(sqlite.Open(allConfig.DB.Path), &gorm.Config{})
 	if err != nil {
