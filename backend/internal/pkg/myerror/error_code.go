@@ -27,4 +27,14 @@ const (
 
 	ErrorCodeQuotaSyncFailed = 1010 // Quota 同步失败
 
+	ErrorCodeMountCreateFailed = 1011 // Mount 创建失败
+
+	ErrorCodeMountGetFailed = 1012 // Mount 获取失败
+
+	ErrorCodeMountQuotaSyncFailed = 1013 // Mount Quota 同步失败
+
+	ErrorCodeMountValidationFailed = 1014 // Mount 参数校验失败
+
+	ErrorCodeQuotaResolveFailed = 1015 // Quota 策略解析失败
+
 )

@@ -6,10 +6,12 @@ import (
 	"openbridge/backend/internal/domain/entity"
 	"openbridge/backend/internal/domain/interfaces"
 	"openbridge/backend/internal/domain/providers"
+	"openbridge/backend/internal/pkg/logger"
 	"openbridge/backend/internal/repository"
 	"openbridge/backend/internal/tool"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -65,8 +67,20 @@ func (u *QuotaUseCase) SyncQuota(ctx context.Context, provider string) (entity.Q
 
 	remoteQuota, err := providerInstance.GetQuota(ctx, account)
 	if err != nil {
+		logger.L().Error("provider quota fetch failed",
+			zap.String("provider", provider),
+			zap.Uint("provider_account_id", account.ID),
+			zap.Error(err),
+		)
 		return entity.Quota{}, err
 	}
+	logger.L().Info("provider quota fetched",
+		zap.String("provider", provider),
+		zap.Uint("provider_account_id", account.ID),
+		zap.Int64("total", remoteQuota.Total),
+		zap.Int64("used", remoteQuota.Used),
+		zap.Int64("available", remoteQuota.Available),
+	)
 
 	now := time.Now().UTC()
 	if err := u.providerRepo.UpdateProviderQuota(account.ID, remoteQuota.Total, remoteQuota.Used, remoteQuota.Available, now); err != nil {
@@ -76,9 +90,11 @@ func (u *QuotaUseCase) SyncQuota(ctx context.Context, provider string) (entity.Q
 	snapshot := &entity.QuotaSnapshot{
 		Provider:          provider,
 		ProviderAccountID: account.ID,
+		Mode:              string(entity.QuotaModeReal),
 		Total:             remoteQuota.Total,
 		Used:              remoteQuota.Used,
 		Available:         remoteQuota.Available,
+		SyncStatus:        "success",
 		SyncedAt:          now,
 	}
 	if err := u.quotaRepo.InsertQuotaSnapshot(snapshot); err != nil {
@@ -118,6 +134,8 @@ func buildProviderByNetDisk(netDisk string) interfaces.Provider {
 	switch netDisk {
 	case "mock":
 		return &providers.MockProvider{}
+	case "baidu":
+		return providers.NewBaiduProvider()
 	default:
 		return nil
 	}
