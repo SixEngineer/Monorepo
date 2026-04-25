@@ -66,3 +66,20 @@ GET    /api/v1/provider/info
 GET    /api/v1/provider/list
 POST   /api/v1/quota/query
 POST   /api/v1/quota/sync
+
+#### 2026.04.24
+
+- 完成 Baidu Provider 首版接入，支持真实容量获取。
+
+- 在保留现有 provider/quota 接口的前提下，新增 Mount + Quota Policy MVP，支持 `real / inherit / virtual` 三种模式及对应校验逻辑。
+
+- 扩展 QuotaSnapshot，补充 mode、sync_status、error_message 等字段，用于记录每次配额解析结果与失败原因。
+
+- 新增接口：
+
+POST /api/v1/mount
+GET  /api/v1/mount/:id/quota
+POST /api/v1/mount/:id/quota/sync
+
+- 已完成基础验证，原有 mock provider 与 quota query/sync 流程保持兼容。
+

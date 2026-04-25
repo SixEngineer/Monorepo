@@ -23,8 +23,13 @@ func NewMountHandler(mountUseCase *usecase.MountUseCase) *MountHandler {
 	return &MountHandler{mountUseCase: mountUseCase}
 }
 
+// CreateMount 是一个处理创建挂载点请求的HTTP处理函数
+// 它接收一个gin上下文参数，用于处理HTTP请求和响应
 func (h *MountHandler) CreateMount(c *gin.Context) {
+    // 定义一个MountPoint结构体变量req，用于存储请求中的JSON数据
 	var req entity.MountPoint
+    // 尝试将请求中的JSON数据绑定到req结构体上
+    // 如果绑定失败，返回400错误码和错误信息
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, tool.HttpResult{Code: myerror.ErrorCodeJsonFormatInvalid, Message: err.Error()})
 		c.Set(logger.LoggerErrorCodeKey, myerror.ErrorCodeJsonFormatInvalid)
@@ -32,6 +37,9 @@ func (h *MountHandler) CreateMount(c *gin.Context) {
 		return
 	}
 
+    // 调用useCase层的CreateMount方法创建挂载点
+    // 传入上下文和请求参数
+    // 如果创建失败，根据错误类型返回相应的错误码和状态码
 	mount, err := h.mountUseCase.CreateMount(context.Background(), req)
 	if err != nil {
 		status, code := mapMountError(err)
@@ -41,31 +49,43 @@ func (h *MountHandler) CreateMount(c *gin.Context) {
 		return
 	}
 
+    // 如果创建成功，返回200状态码和成功响应，包含创建的挂载点数据
 	c.JSON(http.StatusOK, tool.HttpResult{Code: myerror.ErrorCodeOK, Message: myerror.SuccessMessage, Data: mount})
 }
 
+// GetMountQuota 是一个处理获取挂载配额的HTTP处理函数
+// 它接收一个gin.Context参数，用于处理HTTP请求和响应
 func (h *MountHandler) GetMountQuota(c *gin.Context) {
+    // 解析URL中的mountID参数，如果解析失败则返回错误响应
 	mountID, err := parseMountID(c)
 	if err != nil {
+        // 返回400状态码，表示参数无效
 		c.JSON(http.StatusBadRequest, tool.HttpResult{Code: myerror.ErrorCodeParameterInvalid, Message: err.Error()})
+        // 设置日志记录的错误代码和消息
 		c.Set(logger.LoggerErrorCodeKey, myerror.ErrorCodeParameterInvalid)
 		c.Set(logger.LoggerMessageKey, err.Error())
 		return
 	}
 
+    // 调用usecase层获取mount配额信息
 	result, err := h.mountUseCase.GetMountQuota(context.Background(), mountID)
 	if err != nil {
+        // 将错误映射为HTTP状态码和业务错误码
 		status, code := mapMountError(err)
+        // 如果是数据库记录未找到错误，设置特定的状态码和错误码
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			status = http.StatusNotFound
 			code = myerror.ErrorCodeMountGetFailed
 		}
+        // 返回对应的错误响应
 		c.JSON(status, tool.HttpResult{Code: code, Message: err.Error()})
+        // 设置日志记录的错误代码和消息
 		c.Set(logger.LoggerErrorCodeKey, code)
 		c.Set(logger.LoggerMessageKey, err.Error())
 		return
 	}
 
+    // 成功获取配息信息，返回200状态码和成功响应
 	c.JSON(http.StatusOK, tool.HttpResult{Code: myerror.ErrorCodeOK, Message: myerror.SuccessMessage, Data: result})
 }
 

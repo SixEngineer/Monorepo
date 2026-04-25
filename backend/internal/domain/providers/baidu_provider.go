@@ -98,6 +98,11 @@ func (p *BaiduProvider) GetQuota(ctx context.Context, account *entity.ProviderAc
 
 	// 创建当前UTC时间
 	now := time.Now().UTC()
+
+	// 转换为 MB
+	payload.Total /= (1024 * 1024) 
+	payload.Used /= (1024 * 1024)
+
 	// 返回格式化后的配额信息
 	return entity.Quota{
 		Provider:  "baidu",
