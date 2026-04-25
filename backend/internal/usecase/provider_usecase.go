@@ -9,36 +9,38 @@ import (
 )
 
 type ProviderUseCase struct {
-	ProviderRepo *repository.ProviderRepository
+	ProviderRepo     *repository.ProviderRepository
 	ProviderRegistry *tool.Registry
 }
 
 // 构造函数
 func NewProviderUseCase(providerRepo *repository.ProviderRepository, providerRegistry *tool.Registry) *ProviderUseCase {
 	return &ProviderUseCase{
-		ProviderRepo: providerRepo,
+		ProviderRepo:     providerRepo,
 		ProviderRegistry: providerRegistry,
 	}
 }
 
 // 注册 Provider
 func (p *ProviderUseCase) RegisterProvider(providerAccount entity.ProviderAccount) error {
-    
-	providerNetDisk  := providerAccount.NetDisk
+
+	providerNetDisk := providerAccount.NetDisk
 
 	switch providerNetDisk {
-		case "mock":
-			p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
-		default:
-			return errors.New("provider not found")
+	case "mock":
+		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
+	case "baidu":
+		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider())
+	default:
+		return errors.New("provider not found")
 	}
-	
-	return p.ProviderRepo.InsertProviderAccount(&providerAccount)	
+
+	return p.ProviderRepo.InsertProviderAccount(&providerAccount)
 }
 
 // 删除 Provider
 func (p *ProviderUseCase) DeleteProvider(id uint) error {
-    
+
 	// 首先获取ProviderAccount信息，以便从Registry中注销
 	providerAccount, err := p.ProviderRepo.GetProviderAccount(id)
 	if err != nil {
@@ -47,7 +49,7 @@ func (p *ProviderUseCase) DeleteProvider(id uint) error {
 
 	// 从Registry中注销Provider
 	p.ProviderRegistry.Unregister(providerAccount.Name)
-	
+
 	return p.ProviderRepo.DeleteProviderAccount(id)
 }
 
@@ -63,13 +65,15 @@ func (p *ProviderUseCase) UpdateProvider(providerAccount entity.ProviderAccount)
 	p.ProviderRegistry.Unregister(providerAccountOld.Name)
 
 	// 注册新的Provider
-	providerNetDisk  := providerAccount.NetDisk
+	providerNetDisk := providerAccount.NetDisk
 
 	switch providerNetDisk {
-		case "mock":
-			p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
-		default:
-			return errors.New("provider not found")
+	case "mock":
+		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
+	case "baidu":
+		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider())
+	default:
+		return errors.New("provider not found")
 	}
 
 	return p.ProviderRepo.UpdateProviderAccount(&providerAccount)

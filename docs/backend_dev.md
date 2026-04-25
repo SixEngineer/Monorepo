@@ -34,3 +34,52 @@ backend/
 由于access token通常具有较短的有效期，因此需要定期刷新access token。服务器将refresh token存储在数据库中，以便在需要时使用。
 
 下一次开发任务：实现获取容量相关的接口。
+
+#### 2026.04.16
+
+- 实现了Zap日志系统，目前能够以JSON格式输出日志。
+
+日志格式示例如下，这是一个HTTP请求的日志输出。
+
+```json
+{
+    "level":"info",
+    "ts":"2026-04-16T10:15:00.533+0800",
+    "caller":"middleware/access_log.go:42",
+    "msg":"",
+    "request_id":"req_e98c1cbd7fb4978034497fff",
+    "method":"GET",
+    "path":"/api/v1/provider/info",
+    "status":1000,
+    "latency":0.0011538
+}
+```
+
+- 实现了以下接口，具体信息查看 API 接口文档。
+
+其中涵盖了provider的增删改查，quota的查询和同步。目前暂时使用mock数据作为返回内容。
+
+POST   /api/v1/provider
+DELETE /api/v1/provider
+PUT    /api/v1/provider
+GET    /api/v1/provider/info
+GET    /api/v1/provider/list
+POST   /api/v1/quota/query
+POST   /api/v1/quota/sync
+
+#### 2026.04.24
+
+- 完成 Baidu Provider 首版接入，支持真实容量获取。
+
+- 在保留现有 provider/quota 接口的前提下，新增 Mount + Quota Policy MVP，支持 `real / inherit / virtual` 三种模式及对应校验逻辑。
+
+- 扩展 QuotaSnapshot，补充 mode、sync_status、error_message 等字段，用于记录每次配额解析结果与失败原因。
+
+- 新增接口：
+
+POST /api/v1/mount
+GET  /api/v1/mount/:id/quota
+POST /api/v1/mount/:id/quota/sync
+
+- 已完成基础验证，原有 mock provider 与 quota query/sync 流程保持兼容。
+

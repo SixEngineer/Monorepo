@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"openbridge/backend/internal/pkg/logger"
 	"openbridge/backend/internal/pkg/myerror"
 	"openbridge/backend/internal/usecase"
 
@@ -34,6 +35,8 @@ func (h *QuotaHandler) QueryQuota(c *gin.Context) {
 	var req quotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, quotaResponse{Code: myerror.ErrorCodeJsonFormatInvalid, Message: err.Error(), Data: nil})
+		c.Set(logger.LoggerErrorCodeKey, myerror.ErrorCodeJsonFormatInvalid)
+		c.Set(logger.LoggerMessageKey, err.Error())
 		return
 	}
 
@@ -46,6 +49,8 @@ func (h *QuotaHandler) QueryQuota(c *gin.Context) {
 			code = myerror.ErrorCodeProviderGetFailed
 		}
 		c.JSON(status, quotaResponse{Code: code, Message: err.Error(), Data: nil})
+		c.Set(logger.LoggerErrorCodeKey, code)
+		c.Set(logger.LoggerMessageKey, err.Error())
 		return
 	}
 
@@ -57,6 +62,8 @@ func (h *QuotaHandler) SyncQuota(c *gin.Context) {
 	var req quotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, quotaResponse{Code: myerror.ErrorCodeJsonFormatInvalid, Message: err.Error(), Data: nil})
+		c.Set(logger.LoggerErrorCodeKey, myerror.ErrorCodeJsonFormatInvalid)
+		c.Set(logger.LoggerMessageKey, err.Error())
 		return
 	}
 
@@ -73,6 +80,8 @@ func (h *QuotaHandler) SyncQuota(c *gin.Context) {
 			code = myerror.ErrorCodeProviderGetFailed
 		}
 		c.JSON(status, quotaResponse{Code: code, Message: err.Error(), Data: nil})
+		c.Set(logger.LoggerErrorCodeKey, code)
+		c.Set(logger.LoggerMessageKey, err.Error())
 		return
 	}
 

@@ -9,6 +9,8 @@ import (
 	"openbridge/backend/internal/repository"
 	"openbridge/backend/internal/tool"
 	"openbridge/backend/internal/usecase"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -30,6 +32,12 @@ func main() {
 		zap.String("env", allConfig.App.Env),
 		zap.String("port", allConfig.App.Port),
 	)
+
+	// TODO: 创建数据库所在目录
+	dbDir := filepath.Dir(allConfig.DB.Path)
+	if err := os.MkdirAll(dbDir, 0755); err != nil {
+		logger.L().Fatal("failed to create db directory", zap.Error(err), zap.String("dir", dbDir))
+	}
 
 	// 数据库连接
 	db, err := gorm.Open(sqlite.Open(allConfig.DB.Path), &gorm.Config{})
@@ -53,17 +61,25 @@ func main() {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
 	}
 
+	err = db.AutoMigrate(&entity.MountPoint{})
+	if err != nil {
+		logger.L().Fatal("db migrate failed", zap.Error(err))
+	}
+
 	tokenRepo := repository.NewTokenRepository(db)
 	tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
 	tokenHandler := handler.NewTokenHandler(tokenUsecase)
 
 	providerRepo := repository.NewProviderRepository(db)
 	quotaRepo := repository.NewQuotaRepository(db)
+	mountRepo := repository.NewMountRepository(db)
 	providerRegistry := tool.NewRegistry()
 	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry)
 	quotaUsecase := usecase.NewQuotaUseCase(providerRepo, quotaRepo, providerRegistry)
+	mountUsecase := usecase.NewMountUseCase(mountRepo, providerRepo, quotaRepo, providerRegistry)
 	providerHandler := handler.NewProviderHandler(providerUsecase)
 	quotaHandler := handler.NewQuotaHandler(quotaUsecase)
+	mountHandler := handler.NewMountHandler(mountUsecase)
 
 	r := gin.New()
 	r.Use(middleware.RequestID())
@@ -89,6 +105,13 @@ func main() {
 	{
 		quotaGroup.POST("/query", quotaHandler.QueryQuota)
 		quotaGroup.POST("/sync", quotaHandler.SyncQuota)
+	}
+
+	mountGroup := r.Group("/api/v1/mount")
+	{
+		mountGroup.POST("", mountHandler.CreateMount)
+		mountGroup.GET("/:id/quota", mountHandler.GetMountQuota)
+		mountGroup.POST("/:id/quota/sync", mountHandler.SyncMountQuota)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {
