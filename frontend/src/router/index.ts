@@ -21,6 +21,7 @@ const router = createRouter({
         { path: 'providers', component: () => import('@/views/ProviderView.vue') },
         { path: 'tasks', component: () => import('@/views/DownloadTasksView.vue') },
         { path: 'quota', component: () => import('@/views/QuotaView.vue') },
+        { path: 'token', component: () => import('@/views/TokenView.vue') }, 
         { path: 'settings', component: () => import('@/views/SettingsView.vue') },
         { path: 'debug', component: () => import('@/views/DebugView.vue') },
       ],

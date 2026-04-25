@@ -7,9 +7,18 @@ const props = defineProps<{
 }>()
 
 const label = computed(() => {
-  if (props.state === 'healthy') return 'Healthy'
-  if (props.state === 'warning') return 'Warning'
-  return 'Offline'
+  switch (props.state) {
+    case 'active':
+      return 'Active'
+    case 'disabled':
+      return 'Disabled'
+    case 'expired':
+      return 'Expired'
+    case 'error':
+      return 'Error'
+    default:
+      return props.state
+  }
 })
 </script>
 

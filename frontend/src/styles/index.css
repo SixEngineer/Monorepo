@@ -359,19 +359,24 @@ input {
   font-weight: 700;
 }
 
-.status-badge--healthy {
+.status-badge--active {
   background: rgba(42, 167, 106, 0.12);
-  color: #0d7d4c;
+  color: #2aa76a;
 }
 
-.status-badge--warning {
-  background: rgba(199, 143, 45, 0.14);
-  color: #9f6b12;
+.status-badge--disabled {
+  background: rgba(107, 114, 128, 0.12);
+  color: #6b7280;
 }
 
-.status-badge--offline {
-  background: rgba(191, 79, 79, 0.12);
-  color: #a03e3e;
+.status-badge--expired {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.status-badge--error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
 }
 
 .alert-card {

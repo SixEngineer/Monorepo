@@ -454,6 +454,85 @@ http://localhost:5173/dashboard
 
 ---
 
+## 2026-04-19 前后端接口对接完成
+
+### 本次完成内容
+
+完成前端控制台核心业务模块与后端接口的对接，将此前基于 mock 数据的页面替换为真实 API 调用。
+
+本次主要完成：
+
+- **Provider 模块对接**
+  - 实现 Provider 列表获取
+  - 实现 Provider 注册功能
+  - 实现 Provider 编辑功能
+  - 实现 Provider 删除功能
+  - 新增 ProviderFormDialog 表单对话框组件
+
+- **Quota 模块对接**
+  - 实现配额查询功能（不触发远端同步）
+  - 实现配额同步功能（调用远端接口）
+  - 展示总配额、已用配额、可用配额及使用进度条
+
+- **Token 模块对接**
+  - 新增 Token 管理页面
+  - 实现 Token 上传功能
+  - 支持选择网盘类型（mock/baidu/aliyun/quark）
+
+- **基础设施完善**
+  - 安装并配置 axios 请求库
+  - 创建统一的请求封装 `utils/request.ts`
+  - 配置 Vite 代理解决跨域问题
+  - 完善 TypeScript 类型定义，匹配后端数据结构
+  - 调整状态管理 `stores/console.ts`，接入真实 API
+  - 适配前端状态显示组件（StatusBadge）以匹配后端状态值（active/disabled/expired/error）
+
+### 涉及文件
+
+**新增文件：**
+- [frontend/src/utils/request.ts](/e:/se_work/Monorepo/frontend/src/utils/request.ts)
+- [frontend/src/api/provider.ts](/e:/se_work/Monorepo/frontend/src/api/provider.ts)
+- [frontend/src/api/quota.ts](/e:/se_work/Monorepo/frontend/src/api/quota.ts)
+- [frontend/src/api/token.ts](/e:/se_work/Monorepo/frontend/src/api/token.ts)
+- [frontend/src/types/quota.ts](/e:/se_work/Monorepo/frontend/src/types/quota.ts)
+- [frontend/src/types/token.ts](/e:/se_work/Monorepo/frontend/src/types/token.ts)
+- [frontend/src/views/TokenView.vue](/e:/se_work/Monorepo/frontend/src/views/TokenView.vue)
+- [frontend/src/components/provider/ProviderFormDialog.vue](/e:/se_work/Monorepo/frontend/src/components/provider/ProviderFormDialog.vue)
+- [frontend/.env.development](/e:/se_work/Monorepo/frontend/.env.development)
+
+**修改文件：**
+- [frontend/package.json](/e:/se_work/Monorepo/frontend/package.json)（添加 axios 依赖）
+- [frontend/vite.config.ts](/e:/se_work/Monorepo/frontend/vite.config.ts)（添加代理配置）
+- [frontend/src/stores/console.ts](/e:/se_work/Monorepo/frontend/src/stores/console.ts)
+- [frontend/src/views/ProviderView.vue](/e:/se_work/Monorepo/frontend/src/views/ProviderView.vue)
+- [frontend/src/views/QuotaView.vue](/e:/se_work/Monorepo/frontend/src/views/QuotaView.vue)
+- [frontend/src/types/provider.ts](/e:/se_work/Monorepo/frontend/src/types/provider.ts)
+- [frontend/src/types/common.ts](/e:/se_work/Monorepo/frontend/src/types/common.ts)
+- [frontend/src/components/common/PageHeader.vue](/e:/se_work/Monorepo/frontend/src/components/common/PageHeader.vue)
+- [frontend/src/components/common/StatusBadge.vue](/e:/se_work/Monorepo/frontend/src/components/common/StatusBadge.vue)
+- [frontend/src/components/layout/AppSidebar.vue](/e:/se_work/Monorepo/frontend/src/components/layout/AppSidebar.vue)
+- [frontend/src/router/index.ts](/e:/se_work/Monorepo/frontend/src/router/index.ts)
+- [frontend/src/styles/index.css](/e:/se_work/Monorepo/frontend/src/styles/index.css)
+
+### 当前状态
+
+- Provider 模块已完成完整的增删改查功能，数据来源于真实后端接口
+- Quota 模块已完成查询与同步功能，可正确展示配额数据
+- Token 模块已完成上传功能，可向指定网盘类型上传 Token
+- 前端通过 Vite 代理方式解决跨域问题，无需依赖后端 CORS 配置
+- 所有对接模块均已在本地完成测试，功能正常运行
+
+### 后续待做
+
+- Dashboard 页面数据接入真实接口
+- OpenList 页面从占位升级为真实功能
+- Download Tasks 页面等待后端接口完成后进行对接
+- Quota 历史快照展示（等待后端暴露 QuotaSnapshot 接口）
+- 统一前后端响应码处理逻辑
+- 完善全局错误处理和用户提示
+
+---
+
 ## 后续追加记录格式建议
 
 后续每次追加日志建议使用如下格式：
@@ -485,3 +564,4 @@ http://localhost:5173/dashboard
 - 已从“方案说明”调整为“开发日志”
 - 当前内容只记录“到目前为止前端做了什么”
 - 后续开发应继续在此文件上追加，不应重写成最终总结
+```
