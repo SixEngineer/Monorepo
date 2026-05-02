@@ -66,9 +66,9 @@ func main() {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
 	}
 
-	tokenRepo := repository.NewTokenRepository(db)
-	tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
-	tokenHandler := handler.NewTokenHandler(tokenUsecase)
+	// tokenRepo := repository.NewTokenRepository(db)
+	// tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
+	// tokenHandler := handler.NewTokenHandler(tokenUsecase)
 
 	providerRepo := repository.NewProviderRepository(db)
 	quotaRepo := repository.NewQuotaRepository(db)
@@ -86,10 +86,10 @@ func main() {
 	r.Use(middleware.AccessLog())
 	r.Use(gin.Recovery())
 
-	tokenGroup := r.Group("/api/v1/token")
-	{
-		tokenGroup.POST("", tokenHandler.UploadToken)
-	}
+	// tokenGroup := r.Group("/api/v1/token")
+	// {
+	// 	tokenGroup.POST("", tokenHandler.UploadToken)
+	// }
 
 	// 注册 Provider 相关路由
 	providerGroup := r.Group("/api/v1/provider")
