@@ -379,65 +379,65 @@ func (u *MountUseCase) getAllowedMax(ctx context.Context, mount *entity.MountPoi
 // mode: 配额模式，包括实时模式、继承模式和虚拟模式
 // 返回值：error，验证过程中出现的错误
 func (u *MountUseCase) validateMountConfig(ctx context.Context, mount *entity.MountPoint, mode entity.QuotaMode) error {
-    // 根据不同的配额模式进行验证和处理
+	// 根据不同的配额模式进行验证和处理
 	switch mode {
 	case entity.QuotaModeReal:
-        // 实时模式验证：需要提供提供商账户ID
+		// 实时模式验证：需要提供提供商账户ID
 		if mount.ProviderAccountID == 0 {
 			return ErrMountProviderRequired
 		}
-        // 获取提供商账户信息
+		// 获取提供商账户信息
 		account, err := u.providerRepo.GetProviderAccount(mount.ProviderAccountID)
 		if err != nil {
 			return err
 		}
-        // 设置提供商类型，继承ID和虚拟总量、使用量为0
+		// 设置提供商类型，继承ID和虚拟总量、使用量为0
 		mount.ProviderType = account.NetDisk
 		mount.InheritFromID = nil
 		mount.VirtualTotal = 0
 		mount.VirtualUsed = 0
 		return nil
 	case entity.QuotaModeInherit:
-        // 继承模式验证：需要提供父挂载点ID
+		// 继承模式验证：需要提供父挂载点ID
 		if mount.InheritFromID == nil {
 			return ErrMountParentRequired
 		}
-        // 获取父挂载点信息
+		// 获取父挂载点信息
 		parent, err := u.mountRepo.GetMountPoint(*mount.InheritFromID)
 		if err != nil {
 			return err
 		}
-        // 验证父挂载点必须是实时模式
+		// 验证父挂载点必须是实时模式
 		if strings.ToLower(parent.QuotaMode) != string(entity.QuotaModeReal) {
 			return ErrMountParentNotReal
 		}
-        // 验证继承关系不会形成循环
+		// 验证继承关系不会形成循环
 		if err := u.validateNoCycle(parent.ID, mount.ID); err != nil {
 			return err
 		}
-        // 设置提供商账户ID、类型和虚拟总量、使用量为0
+		// 设置提供商账户ID、类型和虚拟总量、使用量为0
 		mount.ProviderAccountID = parent.ProviderAccountID
 		mount.ProviderType = parent.ProviderType
 		mount.VirtualTotal = 0
 		mount.VirtualUsed = 0
 		return nil
 	case entity.QuotaModeVirtual:
-        // 虚拟模式验证：需要提供提供商账户ID
+		// 虚拟模式验证：需要提供提供商账户ID
 		if mount.ProviderAccountID == 0 {
 			return ErrMountProviderRequired
 		}
-        // 验证虚拟使用量不能超过虚拟总量
+		// 验证虚拟使用量不能超过虚拟总量
 		if mount.VirtualUsed > mount.VirtualTotal {
 			return ErrMountVirtualUsedInvalid
 		}
-        // 获取提供商账户信息
+		// 获取提供商账户信息
 		account, err := u.providerRepo.GetProviderAccount(mount.ProviderAccountID)
 		if err != nil {
 			return err
 		}
-        // 设置提供商类型
+		// 设置提供商类型
 		mount.ProviderType = account.NetDisk
-        // 获取允许的最大虚拟配额并验证
+		// 获取允许的最大虚拟配额并验证
 		allowedMax, err := u.getAllowedMax(ctx, mount, true)
 		if err != nil {
 			return err
@@ -447,7 +447,7 @@ func (u *MountUseCase) validateMountConfig(ctx context.Context, mount *entity.Mo
 		}
 		return nil
 	default:
-        // 无效的配额模式
+		// 无效的配额模式
 		return ErrMountInvalidMode
 	}
 }
@@ -507,16 +507,18 @@ func (u *MountUseCase) resolveProvider(account *entity.ProviderAccount) (interfa
 
 // buildMountProviderByNetDisk 根据网络磁盘类型创建相应的Provider接口实现
 // 参数:
-//   netDisk: 网络磁盘类型字符串，如"mock"、"baidu"等
+//	netDisk: 网络磁盘类型字符串，如"mock"、"baidu"等
 // 返回值:
-//   interfaces.Provider: 根据输入返回对应的Provider接口实现，如果类型不支持则返回nil
+//	interfaces.Provider: 根据输入返回对应的Provider接口实现，如果类型不支持则返回nil
 func buildMountProviderByNetDisk(netDisk string, providerRepo *repository.ProviderRepository) interfaces.Provider {
 	switch netDisk {
-	case "mock":  // 如果是mock类型，返回MockProvider的实例
+	case "mock": // 如果是mock类型，返回MockProvider的实例
 		return &providers.MockProvider{}
-	case "baidu":  // 如果是baidu类型，返回BaiduProvider的新实例
+	case "baidu": // 如果是baidu类型，返回BaiduProvider的新实例
 		return providers.NewBaiduProvider(providerRepo)
-	default:  // 其他不支持的类型返回nil
+	case "local_windows": // 如果是local_windows类型，返回LocalWindowsProvider的实例
+		return providers.NewLocalWindowsProvider(providerRepo)
+	default: // 其他不支持的类型返回nil
 		return nil
 	}
 }

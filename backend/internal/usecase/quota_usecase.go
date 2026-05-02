@@ -136,6 +136,8 @@ func buildProviderByNetDisk(netDisk string, providerRepo *repository.ProviderRep
 		return &providers.MockProvider{}
 	case "baidu":
 		return providers.NewBaiduProvider(providerRepo)
+	case "local_windows":
+		return providers.NewLocalWindowsProvider(providerRepo)
 	default:
 		return nil
 	}

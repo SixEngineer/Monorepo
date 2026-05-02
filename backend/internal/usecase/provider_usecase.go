@@ -31,8 +31,10 @@ func (p *ProviderUseCase) RegisterProvider(providerAccount entity.ProviderAccoun
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
 		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
+	case "local_windows":
+		p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalWindowsProvider(p.ProviderRepo))
 	default:
-		return errors.New("provider not found")
+		return errors.New("provider netdisk type undefined")
 	}
 
 	return p.ProviderRepo.InsertProviderAccount(&providerAccount)
@@ -72,6 +74,8 @@ func (p *ProviderUseCase) UpdateProvider(providerAccount entity.ProviderAccount)
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
 		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
+	case "local_windows":
+		p.ProviderRegistry.Register(providerAccount.Name, &providers.LocalWindowsProvider{})
 	default:
 		return errors.New("provider not found")
 	}

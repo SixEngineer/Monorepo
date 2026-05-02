@@ -25,3 +25,11 @@ func (repo *MountRepository) GetMountPoint(id uint) (*entity.MountPoint, error) 
 	}
 	return &mount, nil
 }
+
+func (repo *MountRepository) GetMountPointByProviderAccountID(providerAccountID uint) (*entity.MountPoint, error) {
+	var mount entity.MountPoint
+	if err := repo.db.Where("provider_account_id = ?", providerAccountID).First(&mount).Error; err != nil {
+		return nil, err
+	}
+	return &mount, nil
+}
