@@ -31,8 +31,10 @@ func (p *ProviderUseCase) RegisterProvider(providerAccount entity.ProviderAccoun
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
 		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
-	case "local_windows":
+	case "local_windows": // Windows本地存储Provider，在Linux环境下不编译
 		p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalWindowsProvider(p.ProviderRepo))
+	// case "local_linux": // Linux本地存储Provider，在Windows环境下不编译
+	// 	p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalLinuxProvider(p.ProviderRepo))
 	default:
 		return errors.New("provider netdisk type undefined")
 	}
@@ -74,8 +76,10 @@ func (p *ProviderUseCase) UpdateProvider(providerAccount entity.ProviderAccount)
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
 		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
-	case "local_windows":
-		p.ProviderRegistry.Register(providerAccount.Name, &providers.LocalWindowsProvider{})
+	// case "local_windows": // Windows本地存储Provider，在Linux环境下不编译
+	// 	p.ProviderRegistry.Register(providerAccount.Name, &providers.LocalWindowsProvider{})
+	// case "local_linux": // Linux本地存储Provider，在Windows环境下不编译
+	// 	p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalLinuxProvider(p.ProviderRepo))
 	default:
 		return errors.New("provider not found")
 	}

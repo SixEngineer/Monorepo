@@ -1,3 +1,4 @@
+
 package usecase
 
 import (
@@ -516,8 +517,10 @@ func buildMountProviderByNetDisk(netDisk string, providerRepo *repository.Provid
 		return &providers.MockProvider{}
 	case "baidu": // 如果是baidu类型，返回BaiduProvider的新实例
 		return providers.NewBaiduProvider(providerRepo)
-	case "local_windows": // 如果是local_windows类型，返回LocalWindowsProvider的实例
+	case "local_windows": // Windows本地存储Provider，在Linux环境下不编译
 		return providers.NewLocalWindowsProvider(providerRepo)
+	// case "local_linux": // Linux本地存储Provider，在Windows环境下不编译
+	// 	return providers.NewLocalLinuxProvider(providerRepo)
 	default: // 其他不支持的类型返回nil
 		return nil
 	}
