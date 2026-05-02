@@ -54,7 +54,7 @@ func (h *QuotaHandler) QueryQuota(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, quotaResponse{Code: 0, Message: "ok", Data: quota})
+	c.JSON(http.StatusOK, quotaResponse{Code: myerror.ErrorCodeOK, Message: "ok", Data: quota})
 }
 
 // SyncQuota 调用远端 GetQuota 同步并落库
@@ -85,5 +85,5 @@ func (h *QuotaHandler) SyncQuota(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, quotaResponse{Code: 0, Message: "ok", Data: quota})
+	c.JSON(http.StatusOK, quotaResponse{Code: myerror.ErrorCodeOK, Message: "ok", Data: quota})
 }

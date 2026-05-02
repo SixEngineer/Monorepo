@@ -118,7 +118,7 @@ func (u *QuotaUseCase) resolveProvider(account *entity.ProviderAccount) (interfa
 	}
 
 	// 如果注册表中不存在，则根据网络磁盘类型构建新的提供者实例
-	providerInstance := buildProviderByNetDisk(account.NetDisk)
+	providerInstance := buildProviderByNetDisk(account.NetDisk, u.providerRepo)
 	if providerInstance == nil {
 		// 如果构建失败，返回提供者未找到的错误
 		return nil, ErrProviderNotFound
@@ -130,12 +130,12 @@ func (u *QuotaUseCase) resolveProvider(account *entity.ProviderAccount) (interfa
 	return providerInstance, nil
 }
 
-func buildProviderByNetDisk(netDisk string) interfaces.Provider {
+func buildProviderByNetDisk(netDisk string, providerRepo *repository.ProviderRepository) interfaces.Provider {
 	switch netDisk {
 	case "mock":
 		return &providers.MockProvider{}
 	case "baidu":
-		return providers.NewBaiduProvider()
+		return providers.NewBaiduProvider(providerRepo)
 	default:
 		return nil
 	}

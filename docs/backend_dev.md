@@ -83,3 +83,8 @@ POST /api/v1/mount/:id/quota/sync
 
 - 已完成基础验证，原有 mock provider 与 quota query/sync 流程保持兼容。
 
+#### 2026.04.30
+
+TODO：完善 Refresh Token 机制，支持自动刷新 Access Token。
+
+目前已经尝试由我们自己的 `refresh_token` 生成新的 `access_token`，但发现 Baidu 提供的 API 需要在百度开放平台配置一个应用，并申请上线审核，暂时无法实现。 

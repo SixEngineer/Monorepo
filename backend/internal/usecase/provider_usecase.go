@@ -30,7 +30,7 @@ func (p *ProviderUseCase) RegisterProvider(providerAccount entity.ProviderAccoun
 	case "mock":
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
-		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider())
+		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
 	default:
 		return errors.New("provider not found")
 	}
@@ -71,7 +71,7 @@ func (p *ProviderUseCase) UpdateProvider(providerAccount entity.ProviderAccount)
 	case "mock":
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
-		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider())
+		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
 	default:
 		return errors.New("provider not found")
 	}

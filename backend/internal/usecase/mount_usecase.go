@@ -497,7 +497,7 @@ func (u *MountUseCase) resolveProvider(account *entity.ProviderAccount) (interfa
 		return providerInstance, nil
 	}
 
-	providerInstance := buildMountProviderByNetDisk(account.NetDisk)
+	providerInstance := buildMountProviderByNetDisk(account.NetDisk, u.providerRepo)
 	if providerInstance == nil {
 		return nil, ErrProviderNotFound
 	}
@@ -510,12 +510,12 @@ func (u *MountUseCase) resolveProvider(account *entity.ProviderAccount) (interfa
 //   netDisk: 网络磁盘类型字符串，如"mock"、"baidu"等
 // 返回值:
 //   interfaces.Provider: 根据输入返回对应的Provider接口实现，如果类型不支持则返回nil
-func buildMountProviderByNetDisk(netDisk string) interfaces.Provider {
+func buildMountProviderByNetDisk(netDisk string, providerRepo *repository.ProviderRepository) interfaces.Provider {
 	switch netDisk {
 	case "mock":  // 如果是mock类型，返回MockProvider的实例
 		return &providers.MockProvider{}
 	case "baidu":  // 如果是baidu类型，返回BaiduProvider的新实例
-		return providers.NewBaiduProvider()
+		return providers.NewBaiduProvider(providerRepo)
 	default:  // 其他不支持的类型返回nil
 		return nil
 	}
