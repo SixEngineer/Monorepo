@@ -11,13 +11,15 @@ import (
 type ProviderUseCase struct {
 	ProviderRepo     *repository.ProviderRepository
 	ProviderRegistry *tool.Registry
+	MountRepo        *repository.MountRepository
 }
 
 // 构造函数
-func NewProviderUseCase(providerRepo *repository.ProviderRepository, providerRegistry *tool.Registry) *ProviderUseCase {
+func NewProviderUseCase(providerRepo *repository.ProviderRepository, providerRegistry *tool.Registry, mountRepo *repository.MountRepository) *ProviderUseCase {
 	return &ProviderUseCase{
 		ProviderRepo:     providerRepo,
 		ProviderRegistry: providerRegistry,
+		MountRepo:        mountRepo,
 	}
 }
 
@@ -31,10 +33,8 @@ func (p *ProviderUseCase) RegisterProvider(providerAccount entity.ProviderAccoun
 		p.ProviderRegistry.Register(providerAccount.Name, &providers.MockProvider{})
 	case "baidu":
 		p.ProviderRegistry.Register(providerAccount.Name, providers.NewBaiduProvider(p.ProviderRepo))
-	case "local_windows": // Windows本地存储Provider，在Linux环境下不编译
-		p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalWindowsProvider(p.ProviderRepo))
-	// case "local_linux": // Linux本地存储Provider，在Windows环境下不编译
-	// 	p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalLinuxProvider(p.ProviderRepo))
+	case "local": // Windows本地存储Provider，在Linux环境下不编译
+		p.ProviderRegistry.Register(providerAccount.Name, providers.NewLocalProvider(p.ProviderRepo, p.MountRepo))
 	default:
 		return errors.New("provider netdisk type undefined")
 	}

@@ -65,15 +65,14 @@ func main() {
 
 	providerRegistry := tool.NewRegistry()
 
-	// 初始化 Provider相关组件
-	providerRepo := repository.NewProviderRepository(db)
-	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry)
-	providerHandler := handler.NewProviderHandler(providerUsecase)
-
-	// 初始化 Mount相关组件
 	mountRepo := repository.NewMountRepository(db)
+	providerRepo := repository.NewProviderRepository(db)
+
 	mountUsecase := usecase.NewMountUseCase(mountRepo, providerRepo, quotaRepo, providerRegistry)
 	mountHandler := handler.NewMountHandler(mountUsecase)
+	
+	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry, mountRepo)
+	providerHandler := handler.NewProviderHandler(providerUsecase)
 
 	// Gin引擎设置
 	r := gin.New()

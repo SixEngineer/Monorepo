@@ -21,10 +21,10 @@ type LocalLinuxProvider struct {
 }
 
 // NewLocalLinuxProvider 创建Linux本地存储Provider实例
-func NewLocalLinuxProvider(providerRepo *repository.ProviderRepository) *LocalLinuxProvider {
+func NewLocalProvider(providerRepo *repository.ProviderRepository, mountRepo *repository.MountRepository) *LocalLinuxProvider {
 	return &LocalLinuxProvider{
 		providerRepo: providerRepo,
-		mountRepo:    nil,
+		mountRepo:    mountRepo,
 	}
 }
 
@@ -40,14 +40,12 @@ func (p *LocalLinuxProvider) GetQuota(ctx context.Context, account *entity.Provi
 		return entity.Quota{}, fmt.Errorf("local linux provider: account is nil")
 	}
 
-	// 获取路径，优先从ProviderType获取，其次从AccountID获取
-	path := account.ProviderType
-	if path == "" {
-		path = account.AccountID
+	mountPoint, err := p.mountRepo.GetMountPointByProviderAccountID(account.ID)
+	if err != nil {
+		return entity.Quota{}, fmt.Errorf("local linux provider: get mount point failed: %w", err)
 	}
-	if path == "" {
-		path = "/"  // 默认使用根目录
-	}
+
+	path := mountPoint.ProviderRootPath
 
 	// 路径标准化处理
 	// 1. 替换Windows风格的反斜杠为正斜杠
