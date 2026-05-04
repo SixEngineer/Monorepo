@@ -6,11 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+// quota_snapshots表的Repository
 type QuotaRepository struct {
 	db *gorm.DB
 }
 
-// 构造函数
+// 构造 quota_snapshots 表的 Repo 对象
 func NewQuotaRepository(db *gorm.DB) *QuotaRepository {
 	return &QuotaRepository{db: db}
 }

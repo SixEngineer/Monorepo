@@ -1,4 +1,3 @@
-
 package usecase
 
 import (
@@ -27,6 +26,7 @@ var (
 	ErrMountVirtualExceedsAllowed = errors.New("virtual_total exceeds allowed_max")
 	ErrMountVirtualUsedInvalid    = errors.New("virtual_used must be <= virtual_total")
 	ErrMountDisabled              = errors.New("mount is disabled")
+	ErrProviderNotFound           = errors.New("provider not found")
 )
 
 type MountQuotaResult struct {
