@@ -45,12 +45,7 @@ func main() {
 		logger.L().Fatal("db connect failed", zap.Error(err), zap.String("db_path", allConfig.DB.Path))
 	}
 
-	// 自动迁移
-	err = db.AutoMigrate(&entity.Token{})
-	if err != nil {
-		logger.L().Fatal("db migrate failed", zap.Error(err))
-	}
-
+	// 自动迁移数据库表
 	err = db.AutoMigrate(&entity.ProviderAccount{})
 	if err != nil {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
@@ -66,30 +61,24 @@ func main() {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
 	}
 
-	// tokenRepo := repository.NewTokenRepository(db)
-	// tokenUsecase := usecase.NewTokenUseCase(tokenRepo)
-	// tokenHandler := handler.NewTokenHandler(tokenUsecase)
-
-	providerRepo := repository.NewProviderRepository(db)
 	quotaRepo := repository.NewQuotaRepository(db)
-	mountRepo := repository.NewMountRepository(db)
-	providerRegistry := tool.NewRegistry()
-	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry)
-	quotaUsecase := usecase.NewQuotaUseCase(providerRepo, quotaRepo, providerRegistry)
-	mountUsecase := usecase.NewMountUseCase(mountRepo, providerRepo, quotaRepo, providerRegistry)
-	providerHandler := handler.NewProviderHandler(providerUsecase)
-	quotaHandler := handler.NewQuotaHandler(quotaUsecase)
-	mountHandler := handler.NewMountHandler(mountUsecase)
 
+	providerRegistry := tool.NewRegistry()
+
+	mountRepo := repository.NewMountRepository(db)
+	providerRepo := repository.NewProviderRepository(db)
+
+	mountUsecase := usecase.NewMountUseCase(mountRepo, providerRepo, quotaRepo, providerRegistry)
+	mountHandler := handler.NewMountHandler(mountUsecase)
+	
+	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry, mountRepo)
+	providerHandler := handler.NewProviderHandler(providerUsecase)
+
+	// Gin引擎设置
 	r := gin.New()
 	r.Use(middleware.RequestID())
 	r.Use(middleware.AccessLog())
 	r.Use(gin.Recovery())
-
-	// tokenGroup := r.Group("/api/v1/token")
-	// {
-	// 	tokenGroup.POST("", tokenHandler.UploadToken)
-	// }
 
 	// 注册 Provider 相关路由
 	providerGroup := r.Group("/api/v1/provider")
@@ -101,12 +90,7 @@ func main() {
 		providerGroup.GET("/list", providerHandler.ListProvider)
 	}
 
-	quotaGroup := r.Group("/api/v1/quota")
-	{
-		quotaGroup.POST("/query", quotaHandler.QueryQuota)
-		quotaGroup.POST("/sync", quotaHandler.SyncQuota)
-	}
-
+	// 注册 Mount 相关路由
 	mountGroup := r.Group("/api/v1/mount")
 	{
 		mountGroup.POST("", mountHandler.CreateMount)

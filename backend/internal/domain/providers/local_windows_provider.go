@@ -1,4 +1,5 @@
-
+//go:build windows
+// +build windows
 
 package providers
 
@@ -19,10 +20,10 @@ type LocalWindowsProvider struct {
 	mountRepo    *repository.MountRepository
 }
 
-func NewLocalWindowsProvider(providerRepo *repository.ProviderRepository) *LocalWindowsProvider {
+func NewLocalProvider(providerRepo *repository.ProviderRepository, mountRepo *repository.MountRepository) *LocalWindowsProvider {
 	return &LocalWindowsProvider{
 		providerRepo: providerRepo,
-		mountRepo:    nil,
+		mountRepo:    mountRepo,
 	}
 }
 
@@ -36,10 +37,11 @@ func (p *LocalWindowsProvider) GetQuota(ctx context.Context, account *entity.Pro
 		return entity.Quota{}, fmt.Errorf("local windows provider: account is nil")
 	}
 
-	path := account.ProviderType[len(account.ProviderType)-1:] + ":\\"
-	if path == "" {
-		path = "C:\\"
+	mountPoint,err := p.mountRepo.GetMountPointByProviderAccountID(account.ID)
+	if err != nil {
+		return entity.Quota{}, fmt.Errorf("local windows provider: get mount point failed: %w", err)
 	}
+	path := mountPoint.ProviderRootPath
 
 	path = strings.ReplaceAll(path, "/", "\\")
 	if len(path) == 2 && path[1] == ':' {
