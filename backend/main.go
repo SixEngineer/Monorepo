@@ -74,6 +74,9 @@ func main() {
 	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry, mountRepo)
 	providerHandler := handler.NewProviderHandler(providerUsecase)
 
+	userUsecase := usecase.NewUserUseCase(&allConfig)
+	userHandler := handler.NewUserHandler(userUsecase)
+
 	// Gin引擎设置
 	r := gin.New()
 	r.Use(middleware.RequestID())
@@ -96,6 +99,12 @@ func main() {
 		mountGroup.POST("", mountHandler.CreateMount)
 		mountGroup.GET("/:id/quota", mountHandler.GetMountQuota)
 		mountGroup.POST("/:id/quota/sync", mountHandler.SyncMountQuota)
+	}
+
+	// 注册 User 相关路由
+	userGroup := r.Group("/api/v1/user")
+	{
+	    userGroup.POST("/login", userHandler.UserLogin)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {

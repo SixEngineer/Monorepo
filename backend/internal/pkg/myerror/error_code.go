@@ -37,4 +37,8 @@ const (
 
 	ErrorCodeQuotaResolveFailed = 1015 // Quota 策略解析失败
 
+	ErrorCodeLoginFailed = 1016 // 登录失败
+
+	
+
 )
