@@ -43,4 +43,8 @@ const (
 
 	ErrorCodeGetDriverInfoFailed = 1018 // 获取驱动信息失败
 
+	ErrorCodeGetFilesFailed = 1019 // 获取文件列表失败
+
+	ErrorCodeGetFileInfoFailed = 1020 // 获取文件信息失败
+
 )

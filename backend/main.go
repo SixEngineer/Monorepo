@@ -115,6 +115,8 @@ func main() {
 	{
 	    storageGroup.GET("/drivers", storageHandler.GetDrivers)
 		storageGroup.GET("/driverInfo", storageHandler.GetDriverInfo)
+		storageGroup.GET("/files", storageHandler.GetFiles)
+		storageGroup.GET("/file", storageHandler.GetFileInfo)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {
