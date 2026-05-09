@@ -10,4 +10,4 @@ export interface NavItem {
   description: string
 }
 
-export type HealthState = 'healthy' | 'warning' | 'offline'
+export type HealthState = 'active' | 'disabled' | 'expired' | 'error'

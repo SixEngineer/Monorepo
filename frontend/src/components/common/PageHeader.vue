@@ -7,10 +7,54 @@ defineProps<{
 
 <template>
   <div class="page-header">
-    <div>
-      <p class="page-header__eyebrow">Module</p>
-      <h2>{{ title }}</h2>
+    <div class="page-header__top">
+      <div>
+        <p class="page-header__eyebrow">Module</p>
+        <h2>{{ title }}</h2>
+      </div>
+      <!-- 新增：按钮插槽 -->
+      <div v-if="$slots.actions" class="page-header__actions">
+        <slot name="actions" />
+      </div>
     </div>
     <p class="page-header__description">{{ description }}</p>
   </div>
 </template>
+
+<style scoped>
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header__top {
+  display: flex;
+  align-items: center;  
+  justify-content: space-between;
+  width: 100%; 
+}
+
+.page-header__eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+}
+
+.page-header__top h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.page-header__description {
+  margin: 8px 0 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+</style>
