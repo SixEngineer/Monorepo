@@ -77,6 +77,9 @@ func main() {
 	userUsecase := usecase.NewUserUseCase(&allConfig)
 	userHandler := handler.NewUserHandler(userUsecase)
 
+	storageUsecase := usecase.NewStorageUseCase(&allConfig)
+	storageHandler := handler.NewStorageHandler(storageUsecase)
+
 	// Gin引擎设置
 	r := gin.New()
 	r.Use(middleware.RequestID())
@@ -105,6 +108,13 @@ func main() {
 	userGroup := r.Group("/api/v1/user")
 	{
 	    userGroup.POST("/login", userHandler.UserLogin)
+	}
+
+	// 注册 Storage 相关路由
+	storageGroup := r.Group("/api/v1/storage")
+	{
+	    storageGroup.GET("/drivers", storageHandler.GetDrivers)
+		storageGroup.GET("/driverInfo", storageHandler.GetDriverInfo)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {

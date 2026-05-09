@@ -39,6 +39,8 @@ const (
 
 	ErrorCodeLoginFailed = 1016 // 登录失败
 
-	
+	ErrorCodeGetDriversFailed = 1017 // 获取驱动列表失败
+
+	ErrorCodeGetDriverInfoFailed = 1018 // 获取驱动信息失败
 
 )
