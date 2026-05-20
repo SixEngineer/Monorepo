@@ -47,4 +47,10 @@ const (
 
 	ErrorCodeGetFileInfoFailed = 1020 // 获取文件信息失败
 
+	ErrorCodeDownloadResolveFailed = 1021 // 解析直链失败
+
+	ErrorCodeDownloadCreateFailed = 1022 // 创建下载任务失败
+
+	ErrorCodeDownloadGetFailed = 1023 // 获取下载任务失败
+
 )

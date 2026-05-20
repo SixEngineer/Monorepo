@@ -61,16 +61,22 @@ func main() {
 		logger.L().Fatal("db migrate failed", zap.Error(err))
 	}
 
+	err = db.AutoMigrate(&entity.DownloadTask{})
+	if err != nil {
+		logger.L().Fatal("db migrate failed", zap.Error(err))
+	}
+
 	quotaRepo := repository.NewQuotaRepository(db)
 
 	providerRegistry := tool.NewRegistry()
 
 	mountRepo := repository.NewMountRepository(db)
 	providerRepo := repository.NewProviderRepository(db)
+	downloadRepo := repository.NewDownloadRepository(db)
 
 	mountUsecase := usecase.NewMountUseCase(mountRepo, providerRepo, quotaRepo, providerRegistry)
 	mountHandler := handler.NewMountHandler(mountUsecase)
-	
+
 	providerUsecase := usecase.NewProviderUseCase(providerRepo, providerRegistry, mountRepo)
 	providerHandler := handler.NewProviderHandler(providerUsecase)
 
@@ -79,6 +85,10 @@ func main() {
 
 	storageUsecase := usecase.NewStorageUseCase(&allConfig)
 	storageHandler := handler.NewStorageHandler(storageUsecase)
+
+	aria2Client := tool.NewAria2Client(allConfig.Aria2.RPCURL, allConfig.Aria2.Secret)
+	downloadUsecase := usecase.NewDownloadUseCase(storageUsecase, downloadRepo, aria2Client, &allConfig)
+	downloadHandler := handler.NewDownloadHandler(downloadUsecase, storageUsecase)
 
 	// Gin引擎设置
 	r := gin.New()
@@ -107,16 +117,24 @@ func main() {
 	// 注册 User 相关路由
 	userGroup := r.Group("/api/v1/user")
 	{
-	    userGroup.POST("/login", userHandler.UserLogin)
+		userGroup.POST("/login", userHandler.UserLogin)
 	}
 
 	// 注册 Storage 相关路由
 	storageGroup := r.Group("/api/v1/storage")
 	{
-	    storageGroup.GET("/drivers", storageHandler.GetDrivers)
+		storageGroup.GET("/drivers", storageHandler.GetDrivers)
 		storageGroup.GET("/driverInfo", storageHandler.GetDriverInfo)
 		storageGroup.GET("/files", storageHandler.GetFiles)
 		storageGroup.GET("/file", storageHandler.GetFileInfo)
+	}
+
+	// 注册 Download 相关路由
+	downloadGroup := r.Group("/api/v1/download")
+	{
+		downloadGroup.POST("/resolve", downloadHandler.ResolveDirectLink)
+		downloadGroup.POST("/tasks", downloadHandler.CreateTask)
+		downloadGroup.GET("/tasks/:id", downloadHandler.GetTask)
 	}
 
 	if err := r.Run(":" + allConfig.App.Port); err != nil {

@@ -27,6 +27,7 @@ type DBConfig struct {
 type Aria2Config struct {
 	RPCURL string
 	Secret string
+	DownloadDir string
 }
 
 type OpenListConfig struct {
@@ -60,6 +61,7 @@ func ReadConfig() Config {
 		Aria2: Aria2Config{
 			RPCURL: os.Getenv("ARIA2_RPC_URL"),
 			Secret: os.Getenv("ARIA2_SECRET"),
+			DownloadDir: os.Getenv("ARIA2_DOWNLOAD_DIR"),
 		},
 		OpenList: OpenListConfig{
 			BaseURL: os.Getenv("OPENLIST_BASE_URL"),
